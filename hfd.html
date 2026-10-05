@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVUS — Control Panel</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Inter, Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    overflow: hidden;
+    color: white;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(132, 0, 255, .18), transparent 35%),
+        radial-gradient(circle at 80% 80%, rgba(72, 0, 255, .14), transparent 35%),
+        #07070b;
+}
+
+/* Background */
+
+.background {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.grid {
+    position: absolute;
+    inset: -100px;
+    background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 45px 45px;
+    transform: perspective(500px) rotateX(55deg) translateY(120px);
+    mask-image: linear-gradient(to bottom, transparent, black, transparent);
+}
+
+.orb {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: .35;
+    animation: float 8s infinite ease-in-out;
+}
+
+.orb.one {
+    background: #7b00ff;
+    left: -100px;
+    top: 10%;
+}
+
+.orb.two {
+    background: #4b00ff;
+    right: -100px;
+    bottom: 5%;
+    animation-delay: -4s;
+}
+
+@keyframes float {
+    0%,100% { transform: translate(0,0); }
+    50% { transform: translate(60px,-40px); }
+}
+
+/* Particles */
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #b66cff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #9d4dff;
+    animation: particle 7s linear infinite;
+}
+
+@keyframes particle {
+    from {
+        transform: translateY(110vh);
+        opacity: 0;
+    }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    to {
+        transform: translateY(-10vh);
+        opacity: 0;
+    }
+}
+
+/* Main GUI */
+
+.app {
+    position: relative;
+    width: min(1100px, 94vw);
+    height: min(680px, 88vh);
+    margin: 6vh auto;
+    display: flex;
+
+    background: rgba(14,14,20,.72);
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 24px;
+
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+
+    box-shadow:
+        0 30px 100px rgba(0,0,0,.65),
+        0 0 80px rgba(120,0,255,.08);
+
+    overflow: hidden;
+}
+
+/* Sidebar */
+
+.sidebar {
+    width: 235px;
+    padding: 25px 15px;
+    border-right: 1px solid rgba(255,255,255,.07);
+    background: rgba(255,255,255,.015);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px 25px;
+}
+
+.logo-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+
+    display: grid;
+    place-items: center;
+
+    background: linear-gradient(135deg,#8c25ff,#4c00ff);
+    box-shadow: 0 0 25px rgba(130,0,255,.45);
+
+    font-weight: 900;
+}
+
+.logo-text {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.logo-text span {
+    color: #9d4dff;
+}
+
+.section-title {
+    color: #666675;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 18px 12px 8px;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nav button {
+    border: 0;
+    outline: 0;
+    color: #858592;
+    background: transparent;
+    padding: 12px 13px;
+    border-radius: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: .25s;
+    font-size: 13px;
+}
+
+.nav button:hover {
+    color: white;
+    background: rgba(255,255,255,.05);
+    transform: translateX(3px);
+}
+
+.nav button.active {
+    color: white;
+    background:
+        linear-gradient(90deg,
+        rgba(132,0,255,.22),
+        rgba(132,0,255,.06));
+
+    box-shadow:
+        inset 2px 0 #9b43ff,
+        0 0 25px rgba(125,0,255,.08);
+}
+
+.nav-icon {
+    display: inline-block;
+    width: 25px;
+    opacity: .8;
+}
+
+/* Content */
+
+.content {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.page-title {
+    font-size: 27px;
+    font-weight: 800;
+}
+
+.page-title span {
+    color: #9c45ff;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border-radius: 30px;
+    background: rgba(0,255,140,.06);
+    border: 1px solid rgba(0,255,140,.12);
+    color: #70e9ac;
+    font-size: 11px;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    background: #45e98c;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #45e98c;
+}
+
+/* Cards */
+
+.grid-cards {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.card {
+    padding: 20px;
+    border-radius: 17px;
+    background: rgba(255,255,255,.035);
+    border: 1px solid rgba(255,255,255,.07);
+    transition: .3s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(160,80,255,.25);
+    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+}
+
+.card-label {
+    color: #737381;
+    font-size: 11px;
+    margin-bottom: 9px;
+}
+
+.card-value {
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.card-value.purple {
+    color: #b26aff;
+}
+
+/* Panels */
+
+.panel {
+    background: rgba(255,255,255,.032);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 17px;
+}
+
+.panel-title {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.panel-description {
+    color: #696976;
+    font-size: 11px;
+}
+
+/* Controls */
+
+.control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 13px 0;
+    border-bottom: 1px solid rgba(255,255,255,.045);
+}
+
+.control:last-child {
+    border-bottom: 0;
+}
+
+.control-name {
+    font-size: 13px;
+}
+
+.control-info {
+    color: #676774;
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+/* Toggle */
+
+.toggle {
+    width: 42px;
+    height: 23px;
+    border-radius: 20px;
+    background: #24242d;
+    position: relative;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.toggle::after {
+    content: "";
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    left: 3px;
+    top: 3px;
+    background: #85858f;
+    transition: .25s;
+}
+
+.toggle.active {
+    background: #7e22ce;
+    box-shadow: 0 0 18px rgba(142,36,255,.35);
+}
+
+.toggle.active::after {
+    left: 22px;
+    background: white;
+}
+
+/* Button */
+
+.action {
+    border: 0;
+    color: white;
+    background: linear-gradient(135deg,#8e27ff,#5b0bdb);
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    transition: .25s;
+}
+
+.action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(123,0,255,.35);
+}
+
+.action:active {
+    transform: scale(.96);
+}
+
+/* Pages */
+
+.page {
+    display: none;
+    animation: pageIn .35s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes pageIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile */
+
+@media(max-width:750px) {
+
+    body {
+        overflow: auto;
+    }
+
+    .app {
+        width: 96vw;
+        height: auto;
+        min-height: 94vh;
+        margin: 3vh auto;
+        flex-direction: column;
+        border-radius: 20px;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,.07);
+        padding: 12px;
+    }
+
+    .logo {
+        padding: 5px 8px 12px;
+    }
+
+    .section-title {
+        display: none;
+    }
+
+    .nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 3px;
+    }
+
+    .nav button {
+        min-width: max-content;
+        padding: 10px 12px;
+    }
+
+    .nav-icon {
+        display: none;
+    }
+
+    .content {
+        padding: 20px 16px;
+    }
+
+    .topbar {
+        margin-bottom: 20px;
+    }
+
+    .grid-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .page-title {
+        font-size: 23px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="grid"></div>
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+</div>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">N</div>
+            <div class="logo-text">
+                NOV<span>US</span>
+            </div>
+        </div>
+
+        <div class="section-title">Control</div>
+
+        <div class="nav">
+
+            <button class="active" data-page="home">
+                <span class="nav-icon">⌂</span>
+                Home
+            </button>
+
+            <button data-page="visuals">
+                <span class="nav-icon">◉</span>
+                Visuals
+            </button>
+
+            <button data-page="combat">
+                <span class="nav-icon">◇</span>
+                Combat
+            </button>
+
+            <button data-page="movement">
+                <span class="nav-icon">↯</span>
+                Movement
+            </button>
+
+            <button data-page="misc">
+                <span class="nav-icon">✦</span>
+                Misc
+            </button>
+
+            <button data-page="settings">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="content">
+
+        <div class="topbar">
+
+            <div class="page-title">
+                <span>/</span> <span id="title">Home</span>
+            </div>
+
+            <div class="status">
+                <div class="status-dot"></div>
+                SYSTEM ONLINE
+            </div>
+
+        </div>
+
+        <!-- HOME -->
+
+        <section class="page active" id="home">
+
+            <div class="grid-cards">
+
+                <div class="card">
+                    <div class="card-label">STATUS</div>
+                    <div class="card-value purple">ACTIVE</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">VERSION</div>
+                    <div class="card-value">2.0.0</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">SESSION</div>
+                    <div class="card-value" id="session">00:00</div>
+                </div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">System Overview</div>
+                        <div class="panel-description">
+                            Welcome to your personal control panel.
+                        </div>
+                    </div>
+
+                    <button class="action" onclick="notify('System synchronized')">
+                        SYNC
+                    </button>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Animations</div>
+                        <div class="control-info">Interface visual effects</div>
+                    </div>
+
+                    <div class="toggle active"></div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Particles</div>
+                        <div class="control-info">Background particles</div>
+                    </div>
+
+                    <div class="toggle active"></div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Glass Mode</div>
+                        <div class="control-info">Blurred interface style</div>
+                    </div>
+
+                    <div class="toggle active"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- VISUALS -->
+
+        <section class="page" id="visuals">
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">Visuals</div>
+                        <div class="panel-description">
+                            Interface visualization controls.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">ESP</div>
+                        <div class="control-info">Visual player information</div>
+                    </div>
+                    <div class="toggle"></div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">FullBright</div>
+                        <div class="control-info">Increase scene brightness</div>
+                    </div>
+                    <div class="toggle"></div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Player ESP</div>
+                        <div class="control-info">Player highlighting</div>
+                    </div>
+                    <div class="toggle"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- COMBAT -->
+
+        <section class="page" id="combat">
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">Combat</div>
+                        <div class="panel-description">
+                            Combat configuration.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Aim</div>
+                        <div class="control-info">Aim configuration</div>
+                    </div>
+                    <div class="toggle"></div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Target</div>
+                        <div class="control-info">Target selection</div>
+                    </div>
+                    <div class="toggle"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MOVEMENT -->
+
+        <section class="page" id="movement">
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">Movement</div>
+                        <div class="panel-description">
+                            Character movement settings.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">WalkSpeed</div>
+                        <div class="control-info">Movement speed</div>
+                    </div>
+                    <button class="action" onclick="notify('WalkSpeed selected')">
+                        OPEN
+                    </button>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">JumpPower</div>
+                        <div class="control-info">Jump strength</div>
+                    </div>
+                    <button class="action" onclick="notify('JumpPower selected')">
+                        OPEN
+                    </button>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Infinite Jump</div>
+                        <div class="control-info">Unlimited jumping</div>
+                    </div>
+                    <div class="toggle"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MISC -->
+
+        <section class="page" id="misc">
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">Miscellaneous</div>
+                        <div class="panel-description">
+                            Additional options.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Performance Mode</div>
+                        <div class="control-info">Reduce visual effects</div>
+                    </div>
+                    <div class="toggle"></div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Auto Save</div>
+                        <div class="control-info">Save configuration automatically</div>
+                    </div>
+                    <div class="toggle active"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SETTINGS -->
+
+        <section class="page" id="settings">
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">Settings</div>
+                        <div class="panel-description">
+                            Customize your experience.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Purple Theme</div>
+                        <div class="control-info">Current interface theme</div>
+                    </div>
+
+                    <div class="toggle active"></div>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Configuration</div>
+                        <div class="control-info">Save current settings</div>
+                    </div>
+
+                    <button class="action" onclick="notify('Configuration saved')">
+                        SAVE
+                    </button>
+                </div>
+
+                <div class="control">
+                    <div>
+                        <div class="control-name">Unload Interface</div>
+                        <div class="control-info">Close the interface</div>
+                    </div>
+
+                    <button class="action" onclick="notify('Interface closed')">
+                        CLOSE
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+/* Navigation */
+
+const buttons = document.querySelectorAll(".nav button");
+const pages = document.querySelectorAll(".page");
+const title = document.getElementById("title");
+
+buttons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        buttons.forEach(b => b.classList.remove("active"));
+        button.classList.add("active");
+
+        pages.forEach(page => page.classList.remove("active"));
+
+        const pageName = button.dataset.page;
+        document.getElementById(pageName).classList.add("active");
+
+        title.textContent =
+            button.textContent.trim();
+
+    });
+
+});
+
+
+/* Toggles */
+
+document.querySelectorAll(".toggle").forEach(toggle => {
+
+    toggle.addEventListener("click", () => {
+
+        toggle.classList.toggle("active");
+
+    });
+
+});
+
+
+/* Session timer */
+
+let seconds = 0;
+
+setInterval(() => {
+
+    seconds++;
+
+    const mins =
+        String(Math.floor(seconds / 60)).padStart(2,"0");
+
+    const secs =
+        String(seconds % 60).padStart(2,"0");
+
+    document.getElementById("session").textContent =
+        `${mins}:${secs}`;
+
+},1000);
+
+
+/* Particles */
+
+for(let i = 0; i < 35; i++){
+
+    const particle =
+        document.createElement("div");
+
+    particle.className = "particle";
+
+    particle.style.left =
+        Math.random() * 100 + "%";
+
+    particle.style.animationDelay =
+        Math.random() * 7 + "s";
+
+    particle.style.animationDuration =
+        5 + Math.random() * 8 + "s";
+
+    document.querySelector(".background")
+        .appendChild(particle);
+}
+
+
+/* Notification */
+
+function notify(text){
+
+    const box =
+        document.createElement("div");
+
+    box.textContent = text;
+
+    box.style.position = "fixed";
+    box.style.right = "25px";
+    box.style.bottom = "25px";
+    box.style.padding = "13px 18px";
+    box.style.background = "rgba(20,15,30,.9)";
+    box.style.border = "1px solid rgba(160,80,255,.3)";
+    box.style.borderRadius = "12px";
+    box.style.backdropFilter = "blur(20px)";
+    box.style.color = "white";
+    box.style.fontSize = "12px";
+    box.style.boxShadow =
+        "0 10px 40px rgba(0,0,0,.5)";
+
+    document.body.appendChild(box);
+
+    setTimeout(() => {
+
+        box.style.transition = ".4s";
+        box.style.opacity = "0";
+        box.style.transform = "translateY(10px)";
+
+        setTimeout(() => box.remove(),400);
+
+    },1800);
+
+}
+
+</script>
+
+</body>
+</html>
